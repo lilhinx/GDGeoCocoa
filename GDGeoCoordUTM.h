@@ -14,23 +14,19 @@
 
 
 
-@interface GDGeoCoordUTM : NSObject {
-    NSString *_zone;
-    double   _easting;
-    double   _northing;
-}
+@interface GDGeoCoordUTM : NSObject
 
-@property (strong,nonatomic) NSString *zone;
-@property (assign,nonatomic) CLLocationDegrees easting;
-@property (assign,nonatomic) CLLocationDegrees northing;
+@property (nonatomic,strong) NSString* zoneString;
+@property (nonatomic) CLLocationDegrees easting;
+@property (nonatomic) CLLocationDegrees northing;
 
-- (id)initFromEllips:(kGDGeoCoordEllipsoidType)ellips Zone:(int)zone Latitude:(double)latitude andLongitude:(double)longitude;
-- (id)initFromEllips:(kGDGeoCoordEllipsoidType)ellips Latitude:(CLLocationDegrees)latitude andLongitude:(CLLocationDegrees)longitude;
+- (id)initFromEllips:(kGDGeoCoordEllipsoidType)ellips zone:(int)zone latitude:(double)latitude andLongitude:(double)longitude;
+- (id)initFromEllips:(kGDGeoCoordEllipsoidType)ellips latitude:(CLLocationDegrees)latitude andLongitude:(CLLocationDegrees)longitude;
 - (id)initFromLatitude:(CLLocationDegrees)latitude andLongitude:(CLLocationDegrees)longitude;
 - (id)initFromCoords:(CLLocationCoordinate2D)coords;
 
 
-- (NSString *) zoneLetter;
-- (NSInteger)  zoneNumber;
+- (NSString*)zoneLetter;
+- (NSInteger)zoneNumber;
 
 @end

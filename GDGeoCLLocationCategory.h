@@ -13,9 +13,7 @@
 
 @interface CLLocation (GDGeoCLLocationCategory)
 
-
-- (GDGeoCoordMGRS *) mgrs;
-- (GDGeoCoordUTM *)  utm;
-
+- (GDGeoCoordMGRS*)mgrs;
+- (GDGeoCoordUTM*)utm;
 
 @end

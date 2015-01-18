@@ -22,30 +22,20 @@ typedef enum {
 } kGDGeoCoordMGRSPrecision;
 
 
-@interface GDGeoCoordMGRS : NSObject {
-    
-    NSString *_zone;
-    NSString *_letterEast;
-    NSString *_letterNorth;
-    NSString *_mgrsEast;
-    NSString *_mgrsNorth;
-    kGDGeoCoordMGRSPrecision _precision;
+@interface GDGeoCoordMGRS : NSObject
 
-}
-
-@property (strong, nonatomic) NSString* zone;
-@property (strong, nonatomic) NSString* letterEast;
-@property (strong, nonatomic) NSString* letterNorth;
-@property (strong, nonatomic) NSString* mgrsEast;
-@property (strong, nonatomic) NSString* mgrsNorth;
-@property (assign, nonatomic) kGDGeoCoordMGRSPrecision precision;
+@property (nonatomic, strong) NSString* zoneString;
+@property (nonatomic, strong) NSString* letterEast;
+@property (nonatomic, strong) NSString* letterNorth;
+@property (nonatomic, strong) NSString* mgrsEast;
+@property (nonatomic, strong) NSString* mgrsNorth;
+@property (nonatomic) kGDGeoCoordMGRSPrecision precision;
 
 
 
 - (id)initWithUTM:(GDGeoCoordUTM *)utm;
-//- (id)initWithUPS:(GDGeoCoordUPS *)ups;
 
-- (id)initFromCoord:(CLLocationCoordinate2D) coord;
+- (id)initFromCoord:(CLLocationCoordinate2D)coord;
 - (id)initWithLatitude:(CLLocationDegrees)latitude andLongitude:(CLLocationDegrees)longitude;
 - (id)initWithEllips:(kGDGeoCoordEllipsoidType)ellips 
             latitude:(CLLocationDegrees)latitude 
@@ -57,8 +47,6 @@ typedef enum {
         letterEast:(NSString *)letterEast 
        letterNorth:(NSString *)letterNorth;
 
-- (NSString *)mgrs;
-- (void)setMgrs:(NSString *)mgrs;
-- (NSString *)mgrsWithPrecision:(kGDGeoCoordMGRSPrecision)precision;
+- (NSString*)mgrsWithPrecision:(kGDGeoCoordMGRSPrecision)precision;
 
 @end

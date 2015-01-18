@@ -11,27 +11,18 @@
 
 @implementation GDGeoCoordMGRS
 
-@synthesize      zone = _zone,
-            mgrsEast  = _mgrsEast, 
-            mgrsNorth = _mgrsNorth, 
-           letterEast = _letterEast, 
-          letterNorth = _letterNorth,
-            precision = _precision;
-
-
 - (id)init
 {
     self = [super init];
-    if (!self) {
-        return nil;
+    if( self )
+    {
+        self.zoneString = nil;
+        self.mgrsNorth = nil;
+        self.mgrsEast = nil;
+        self.letterEast = nil;
+        self.letterNorth = nil;
+        self.precision = GDGeoCoordMGRS1000000m;
     }
-    
-    [self setZone:nil];
-    [self setMgrsNorth:nil];
-    [self setMgrsEast:nil];
-    [self setLetterEast:nil];
-    [self setLetterNorth:nil];
-    [self setPrecision:GDGeoCoordMGRS1000000m];
     return self;    
 }
 
@@ -43,17 +34,14 @@
        letterNorth:(NSString *)letterNorth
 {
     self = [super init];
-    
-    if(!self) {
-        return nil;
+    if( self )
+    {
+        self.zoneString = zone;
+        self.mgrsNorth = mgrsNorth;
+        self.mgrsEast = mgrsEast;
+        self.letterNorth = letterNorth;
+        self.letterEast = letterEast;
     }
-    
-    [self setZone:zone];
-    [self setMgrsNorth:mgrsNorth];
-    [self setMgrsEast:mgrsEast];
-    [self setLetterNorth:letterNorth];
-    [self setLetterEast:letterEast];
-    
     return self;
 }
 
@@ -71,112 +59,115 @@
             latitude:(CLLocationDegrees)latitude 
         andLongitude:(CLLocationDegrees)longitude
 {
-    self = [super init];
-    if (!self) {
+    if( latitude < -80.0 || latitude > 84.0 )
+    {
         return nil;
     }
-    if (latitude < -80.0 || latitude > 84.0) {
-        self = nil;
-        return self;
-    }
     
-    GDGeoCoordUTM *utm = [[GDGeoCoordUTM alloc] initFromEllips:ellips Latitude:latitude andLongitude:longitude];
-    if (!utm) {
-        self = nil;
-        return self;
+    GDGeoCoordUTM* utm = [[GDGeoCoordUTM alloc] initFromEllips:ellips latitude:latitude andLongitude:longitude];
+    if( !utm )
+    {
+        return nil;
     }
     
     return [self initWithUTM:utm];
 }
-/*
-- (id)initWithUPS:(GDGeoCoordUPS *)ups
-{
-    return nil; 
-}
-*/
+
 - (id)initWithUTM:(GDGeoCoordUTM *)utm 
 {
     self = [super init];
-    if (!self) {        
-        return nil;
+    if( self )
+    {
+        self.precision = GDGeoCoordMGRS1m;
+        double northing = [utm northing];
+        NSString* north_string = [NSString stringWithFormat:@"%.0f",northing];
+        long north_split = [north_string length] - 5;
+        if( north_split < 0 )
+        {
+            north_split = 0;
+        }
+        
+        double rnd_north = northing;
+        while( rnd_north >= 2000000 )
+        {
+            rnd_north -= 2000000;
+        }
+        if( rnd_north < 0 )
+        {
+            rnd_north += 2000000;
+        }
+        NSInteger num_north = (NSInteger)(rnd_north/100000);
+        
+        NSInteger zoneNumber = [utm zoneNumber];
+        if( zoneNumber % 2 == 0 )
+        {
+            num_north += 5; // the zoneNumber is Odd we need to add 5 to to the north number?
+        }
+        while( num_north >= 20 )
+        {
+            num_north -= 20;
+        }
+        
+        NSString* letter_north = [@"ABCDEFGHJKLMNPQRSTUV" substringWithRange:NSMakeRange(num_north, 1)];
+        NSString* mgrs_north = [NSString stringWithFormat:@"%0.5i",
+                                (north_split == 0) ? 0 :
+                                [[north_string substringFromIndex:north_split] intValue]
+                                ];
+        
+        /*************************************************************************************
+         ** Work on the East
+         *
+         */
+        double easting = [utm easting];
+        NSString* east_string = [NSString stringWithFormat:@"%.0f",easting];
+        
+        long east_split = [east_string length] - 5;
+        if( east_split < 0 )
+        {
+            east_split = 0;
+        }
+        
+        
+        NSInteger num_east = [[east_string substringToIndex:east_split] integerValue]; // This will be zero if not a valid number.
+        
+        NSString* mgrs_east = [NSString stringWithFormat:@"%0.5i",
+                               (east_split == 0) ? 0 :
+                               [[east_string substringFromIndex:east_split] intValue]];
+        
+        NSInteger mgrs_zone = zoneNumber;
+        while( mgrs_zone >= 4 )
+        {
+            mgrs_zone -= 3;
+        }
+        
+        if( mgrs_zone <= 0 )
+        {
+            mgrs_zone = 1;
+        }
+        
+        NSString *easting_zone;
+        switch( mgrs_zone )
+        {
+            case 1:
+                easting_zone = @"ABCDEFGH";
+                break;
+            case 2:
+                easting_zone = @"JKLMNPQR";
+                break;
+            case 3:
+                easting_zone = @"STUVWXYZ";
+        }
+        
+        num_east--;
+        NSString* letter_east = [easting_zone substringWithRange:NSMakeRange(num_east, 1)];
+        
+        self.zoneString = utm.zoneString;
+        self.letterEast = letter_east;
+        self.letterNorth = letter_north;
+        self.mgrsEast = mgrs_east;
+        self.mgrsNorth = mgrs_north;
+        
     }
-    
-    [self setPrecision:GDGeoCoordMGRS1m];
-    double northing = [utm northing];
-    NSString *north_string = [NSString stringWithFormat:@"%.0f",northing];
-    long north_split = [north_string length] - 5;
-    if (north_split < 0) {
-        north_split = 0;
-    }    
-    
-    double rnd_north = northing;
-    while (rnd_north >= 2000000) {
-        rnd_north -= 2000000;
-    }
-    if (rnd_north < 0) {
-        rnd_north += 2000000;
-    }
-    NSInteger num_north = (NSInteger)(rnd_north/100000);
-    
-    NSInteger zoneNumber = [utm zoneNumber];
-    if (zoneNumber % 2 == 0)  
-        num_north += 5; // the zoneNumber is Odd we need to add 5 to to the north number?
-    while ( num_north >= 20 ){
-        num_north -= 20;
-    }
-    
-    NSString *letter_north = [@"ABCDEFGHJKLMNPQRSTUV" substringWithRange:NSMakeRange(num_north, 1)];
-    NSString *mgrs_north = [NSString stringWithFormat:@"%0.5i",
-                            (north_split == 0) ? 0 :
-                            [[north_string substringFromIndex:north_split] intValue]
-                            ];
-  
-    /*************************************************************************************
-     ** Work on the East 
-     *
-     */
-    double easting = [utm easting];
-    NSString *east_string = [NSString stringWithFormat:@"%.0f",easting];
-    
-    long east_split = [east_string length] - 5;
-    if( east_split < 0 )  
-        east_split = 0;
-    
-    
-    NSInteger num_east = [[east_string substringToIndex:east_split] integerValue]; // This will be zero if not a valid number.
-    
-    NSString *mgrs_east = [NSString stringWithFormat:@"%0.5i",
-                           (east_split == 0) ? 0 :
-                           [[east_string substringFromIndex:east_split] intValue]];
-    
-    NSInteger mgrs_zone = zoneNumber;
-    while (mgrs_zone >= 4) {
-        mgrs_zone -= 3;
-    }
-    if( mgrs_zone <= 0)
-        mgrs_zone = 1;
-    
-    NSString *easting_zone;
-    switch (mgrs_zone) {
-        case 1:
-            easting_zone = @"ABCDEFGH";
-            break;
-        case 2:
-            easting_zone = @"JKLMNPQR";
-            break;
-        case 3:
-            easting_zone = @"STUVWXYZ";
-    }
-    
-    num_east--;
-    NSString *letter_east = [easting_zone substringWithRange:NSMakeRange(num_east, 1)];
-    
-    [self setZone:[utm zone]];
-    [self setLetterEast:letter_east];
-    [self setLetterNorth:letter_north];
-    [self setMgrsEast:mgrs_east];
-    [self setMgrsNorth:mgrs_north];
-    
     return self;
 }
 
@@ -190,7 +181,7 @@
     switch (precision) {
         case GDGeoCoordMGRS1m:
             return [NSString stringWithFormat:@"%@%@%@%@%@", 
-                    [self zone], 
+                    [self zoneString], 
                     [self letterEast],
                     [self letterNorth],
                     [self mgrsEast],
@@ -198,7 +189,7 @@
             break;
         case GDGeoCoordMGRS10m:
             return [NSString stringWithFormat:@"%@%@%@%@%@",
-                    [self zone],
+                    [self zoneString],
                     [self letterEast],
                     [self letterNorth],
                     TRUNCATE_BY([self mgrsEast], 1),
@@ -206,7 +197,7 @@
             break;
         case GDGeoCoordMGRS100m:
             return [NSString stringWithFormat:@"%@%@%@%@%@",
-                    [self zone],
+                    [self zoneString],
                     [self letterEast],
                     [self letterNorth],
                     TRUNCATE_BY([self mgrsEast], 2),
@@ -214,7 +205,7 @@
             break;
         case GDGeoCoordMGRS1000m:
             return [NSString stringWithFormat:@"%@%@%@%@%@",
-                    [self zone],
+                    [self zoneString],
                     [self letterEast],
                     [self letterNorth],
                     TRUNCATE_BY([self mgrsEast], 3),
@@ -222,7 +213,7 @@
             break;
         case GDGeoCoordMGRS10000m:
             return [NSString stringWithFormat:@"%@%@%@%@%@",
-                    [self zone],
+                    [self zoneString],
                     [self letterEast],
                     [self letterNorth],
                     TRUNCATE_BY([self mgrsEast], 4),
@@ -230,12 +221,12 @@
             break;
         case GDGeoCoordMGRS100000m:
             return [NSString stringWithFormat:@"%@%@%@",
-                    [self zone],
+                    [self zoneString],
                     [self letterEast],
                     [self letterNorth]];
             break;
         case GDGeoCoordMGRS1000000m:
-            return [NSString stringWithFormat:@"%@",[self zone]];
+            return [NSString stringWithFormat:@"%@",[self zoneString]];
             break;
         default:
             return nil;
@@ -275,7 +266,7 @@
     NSString *mgrs_north = [mgrsne substringFromIndex:[mgrsne length]/2];
     
     // TODO: Need to pad the values up for things that are smaller then the 1 meter precision
-    [self setZone:gzd];
+    [self setZoneString:gzd];
     [self setMgrsEast:mgrs_east];
     [self setMgrsNorth:mgrs_north];
     [self setLetterEast:east_letter];

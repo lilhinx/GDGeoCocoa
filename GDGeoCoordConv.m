@@ -58,7 +58,7 @@ const struct ellipsoidStructure ellipsoidStructureTable[] = {
 @implementation GDGeoCoordConv
 
 
-+ (int) zoneNumberFromLatitude:(double)latitude andLongitude:(double)longitude
++ (int)zoneNumberFromLatitude:(double)latitude andLongitude:(double)longitude
 {
     
     if( (latitude >  84.0 && latitude <  90.0) ||  // North pole
@@ -88,22 +88,20 @@ const struct ellipsoidStructure ellipsoidStructureTable[] = {
     return (int)( (longitude + 180)/6 ) + 1;
 }
 
-+ (NSString *) ellipsoidNameForEllips:(kGDGeoCoordEllipsoidType)ellips
++ (NSString*)ellipsoidNameForEllips:(kGDGeoCoordEllipsoidType)ellips
 {
     return ellipsoidStructureTable[ellips].name;
 }
 
-+ (double) ellipsoidRadisForEllips:(kGDGeoCoordEllipsoidType)ellips
++ (double)ellipsoidRadisForEllips:(kGDGeoCoordEllipsoidType)ellips
 {
     return ellipsoidStructureTable[ellips].radis;
 }
 
-+ (double) ellipsoidEccentricityForEllips:(kGDGeoCoordEllipsoidType)ellips
++ (double)ellipsoidEccentricityForEllips:(kGDGeoCoordEllipsoidType)ellips
 {
     return ellipsoidStructureTable[ellips].eccentricity;
 }
-
-
 
 
 

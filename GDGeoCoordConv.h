@@ -50,9 +50,9 @@ typedef enum {
 
 @interface GDGeoCoordConv : NSObject
 
-+ (int) zoneNumberFromLatitude:(double)latitude andLongitude:(double)longitude;
-+ (NSString *) ellipsoidNameForEllips:(kGDGeoCoordEllipsoidType)ellips;
-+ (double) ellipsoidRadisForEllips:(kGDGeoCoordEllipsoidType)ellips;
-+ (double) ellipsoidEccentricityForEllips:(kGDGeoCoordEllipsoidType)ellips;
++ (int)zoneNumberFromLatitude:(double)latitude andLongitude:(double)longitude;
++ (NSString*)ellipsoidNameForEllips:(kGDGeoCoordEllipsoidType)ellips;
++ (double)ellipsoidRadisForEllips:(kGDGeoCoordEllipsoidType)ellips;
++ (double)ellipsoidEccentricityForEllips:(kGDGeoCoordEllipsoidType)ellips;
 
 @end
