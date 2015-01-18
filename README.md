@@ -1,3 +1,6 @@
+@lilhinx edits for modernization and standardization of Objective-C syntax
+
+
 How To Use
 ==========
 
